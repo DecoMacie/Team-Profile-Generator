@@ -42,11 +42,11 @@ function addManager() {
         }
 
     ])
-    .then((answers) => {
-        const manager = new Manager(answers.name, answers.id, answers.email, answers.officeNumber)
-        team.push(manager)
-    })
-
+        .then((answers) => {
+            const manager = new Manager(answers.name, answers.id, answers.email, answers.officeNumber)
+            team.push(manager)
+        })
+        // .then(() => writeFileAsync(outputPath, render(team)))
 }
 
 function addEngineer() {
@@ -78,7 +78,7 @@ function addEngineer() {
             team.push(engineer)
             // addMore()
         })
-
+        .then(() => writeFileAsync(outputPath, render(team)))
 }
 
 function addIntern() {
@@ -110,33 +110,59 @@ function addIntern() {
             team.push(intern)
             // addMore()
         })
+        .then(() => writeFileAsync(outputPath, render(team)))
 
 }
 
-function addMore() {
+function addMoreStaff() {
+    inquirer.registerPrompt("loop", require("inquirer-loop")(inquirer));
     return inquirer.prompt([
         {
-            type: 'list',
-            name: 'licence',
-            message: 'Want to add another staff.',
-            choices: [new inquirer.Separator(), "Add Engineer", "Add Interin", "no"],
+            type: 'loop',
+            name: "staff",
+            message: "Want to add another staff?",
+            questions: [
+                {
+                    type: 'list',
+                    name: 'role',
+                    message: 'Choose staff role.',
+                    choices: [new inquirer.Separator(), "Engineer", "Intern"],
+                },
+                {
+                    type: 'input',
+                    name: 'name',
+                    message: 'Staff Name: ',
+                },
+                {
+                    type: 'input',
+                    name: 'id',
+                    message: 'Identification Nr.: ',
+                },
+                {
+                    type: 'input',
+                    name: 'email',
+                    message: 'Email address: ',
+                },
+                {
+                    type: 'input',
+                    name: 'github',
+                    message: 'github profile id: ',
+                    when: (staff) => staff.role === 'Engineer'
+                },
+                {
+                    type: 'input',
+                    name: 'school',
+                    message: 'School name: ',
+                    when: (staff) => staff.role === 'Intern'
+                }
+
+            ]
         }
     ])
-    // .then((val) => {
-    //     if (val.licence == 'Add Engineer') {
-    //         addEngineer()
-    //             .then((answers) => {
-    //                 const engineer = new Engineer(answers.name, answers.id, answers.email, answers.github)
-    //                 team.push(engineer)
-    //             })
-    //     } else if (val.licence == 'Add Interin') {
-    //         console.log('Interino')
-    //     } else {
-    //         console.log(team)
-    //         // console.log(team[manager.name])
-    //         // writeFileAsync(outputPath, render(manager))
-    //         // process.exit(0)
-    //     }
+    // .then((data) => {
+    //     const staff = data.staff
+    //     console.log(staff.le)
+
     // })
 
 
@@ -145,32 +171,72 @@ function addMore() {
 
 addManager()
     // .then(() => {
-        // addEngineer()
-            // .then((val) => {
-            //     if (val.licence == 'Add Engineer') {
-            //         addEngineer()
-                        // .then(() => console.log(team))
-            //             // .then((answers) => {
-            //             //     const engineer = new Engineer(answers.name, answers.id, answers.email, answers.github)
-            //             //     team.push(engineer)
-            //             // })
-            //     } else if (val.licence == 'Add Interin') {
-            //         console.log('Interino')
-            //     } else if (val.licence == 'no') {
-            //         console.log(team)
-            //         // console.log(team[manager.name])
-            //         // writeFileAsync(outputPath, render(team))
-            //         // process.exit(0)
-            //     }
-            // })
+    // addEngineer()
+    // .then((val) => {
+    //     if (val.licence == 'Add Engineer') {
+    //         addEngineer()
+    // .then(() => console.log(team))
+    //             // .then((answers) => {
+    //             //     const engineer = new Engineer(answers.name, answers.id, answers.email, answers.github)
+    //             //     team.push(engineer)
+    //             // })
+    //     } else if (val.licence == 'Add Interin') {
+    //         console.log('Interino')
+    //     } else if (val.licence == 'no') {
+    //         console.log(team)
+    //         // console.log(team[manager.name])
+    //         // writeFileAsync(outputPath, render(team))
+    //         // process.exit(0)
+    //     }
+    // })
     // }
     // )
 
 
     // .then(() => console.log(team))
     // .then(() => writeFileAsync(outputPath, render(team)))
-    .then(() => addEngineer()) 
-    .then(() => addIntern())
-    .then(() => console.log(team))
-    .then(() => writeFileAsync(outputPath, render(team)))
+    .then(() => addMoreStaff()
+        .then((answers) => {
+            const staff = answers.staff
+            console.log(staff)
+            staff.forEach(element => {
+                if (element.role === 'Engineer') {
+                    const engineer = new Engineer(element.name, element.id, element.email, element.github)
+                    team.push(engineer)
+                } else if (element.role === 'Intern'){
+                    const intern = new Intern(element.name, element.id, element.email, element.school)
+                    team.push(intern)
+                }
+                
+            });
+                console.log(team)
+                writeFileAsync(outputPath, render(team))
+
+
+        })
+        // .then((val) => {
+        //     if (val.licence == 'Add Engineer') {
+        //         addEngineer()
+        //             // .then(() => writeFileAsync(outputPath, render(team)))
+        //             .then(() => console.log(team))
+
+        //     } else if (val.licence == 'Add Interin') {
+        //         addIntern()
+        //             // .then(() => writeFileAsync(outputPath, render(team)))
+        //             .then(() => console.log(team))
+        //     } else {
+        //         console.log(team)
+        //         // console.log(team[manager.name])
+        //         // writeFileAsync(outputPath, render(manager))
+        //         // process.exit(0)
+        //         // console.log(val)
+
+        //     }
+        // })
+
+    )
+    // .then(() => addEngineer())
+    // .then(() => addIntern())
+    // .then(() => console.log(team))
+    // .then(() => writeFileAsync(outputPath, render(team)))
 
