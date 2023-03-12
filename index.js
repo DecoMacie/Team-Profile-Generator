@@ -17,7 +17,7 @@ const team = [];
 
 // TODO: Write Code to gather information about the development team members, and render the HTML file.
 // Creates question and inquire format
-
+// Function to add Manager using inquirer
 function addManager() {
     return inquirer.prompt([
         {
@@ -34,11 +34,27 @@ function addManager() {
             type: 'input',
             name: 'email',
             message: 'Email address: ',
+            //validating - email must be in the correct format: Ex. test@test.com
+            validate: (email) => {
+                valid = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email)
+
+                if (valid) {
+                    return true;
+                } else {
+                    return "Please enter a valid email. ";
+                }
+            },
         },
         {
             type: 'input',
             name: 'officeNumber',
             message: 'Office Number: ',
+            validate: (officeNumber) => {
+                if (isNaN(officeNumber)) {
+                  return "Please enter a valid Office Number";
+                }
+                return true;
+              },
         }
 
     ])
@@ -46,74 +62,9 @@ function addManager() {
             const manager = new Manager(answers.name, answers.id, answers.email, answers.officeNumber)
             team.push(manager)
         })
-        // .then(() => writeFileAsync(outputPath, render(team)))
 }
 
-function addEngineer() {
-    return inquirer.prompt([
-        {
-            type: 'input',
-            name: 'name',
-            message: 'Engineers Name: ',
-        },
-        {
-            type: 'input',
-            name: 'id',
-            message: 'Identification Nr.: ',
-        },
-        {
-            type: 'input',
-            name: 'email',
-            message: 'Email address: ',
-        },
-        {
-            type: 'input',
-            name: 'github',
-            message: 'github profile id: ',
-        }
-
-    ])
-        .then((answers) => {
-            const engineer = new Engineer(answers.name, answers.id, answers.email, answers.github)
-            team.push(engineer)
-            // addMore()
-        })
-        .then(() => writeFileAsync(outputPath, render(team)))
-}
-
-function addIntern() {
-    return inquirer.prompt([
-        {
-            type: 'input',
-            name: 'name',
-            message: 'Intern Name: ',
-        },
-        {
-            type: 'input',
-            name: 'id',
-            message: 'Identification Nr.: ',
-        },
-        {
-            type: 'input',
-            name: 'email',
-            message: 'Email address: ',
-        },
-        {
-            type: 'input',
-            name: 'school',
-            message: 'School name: ',
-        }
-
-    ])
-        .then((answers) => {
-            const intern = new Intern(answers.name, answers.id, answers.email, answers.school)
-            team.push(intern)
-            // addMore()
-        })
-        .then(() => writeFileAsync(outputPath, render(team)))
-
-}
-
+//Function to add more staff using Inquirer loop
 function addMoreStaff() {
     inquirer.registerPrompt("loop", require("inquirer-loop")(inquirer));
     return inquirer.prompt([
@@ -142,6 +93,17 @@ function addMoreStaff() {
                     type: 'input',
                     name: 'email',
                     message: 'Email address: ',
+                    //validating - email must be in the correct format: Ex. test@test.com
+                    validate: (email) => {
+                        valid = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email)
+
+                        if (valid) {
+                            return true;
+                        } else {
+                            return "Please enter a valid email. ";
+                        }
+                    },
+
                 },
                 {
                     type: 'input',
@@ -159,84 +121,23 @@ function addMoreStaff() {
             ]
         }
     ])
-    // .then((data) => {
-    //     const staff = data.staff
-    //     console.log(staff.le)
-
-    // })
-
-
 }
 
-
 addManager()
-    // .then(() => {
-    // addEngineer()
-    // .then((val) => {
-    //     if (val.licence == 'Add Engineer') {
-    //         addEngineer()
-    // .then(() => console.log(team))
-    //             // .then((answers) => {
-    //             //     const engineer = new Engineer(answers.name, answers.id, answers.email, answers.github)
-    //             //     team.push(engineer)
-    //             // })
-    //     } else if (val.licence == 'Add Interin') {
-    //         console.log('Interino')
-    //     } else if (val.licence == 'no') {
-    //         console.log(team)
-    //         // console.log(team[manager.name])
-    //         // writeFileAsync(outputPath, render(team))
-    //         // process.exit(0)
-    //     }
-    // })
-    // }
-    // )
-
-
-    // .then(() => console.log(team))
-    // .then(() => writeFileAsync(outputPath, render(team)))
     .then(() => addMoreStaff()
         .then((answers) => {
             const staff = answers.staff
-            console.log(staff)
+            // Loop over each staff to segregatte to the respective role 
             staff.forEach(element => {
                 if (element.role === 'Engineer') {
                     const engineer = new Engineer(element.name, element.id, element.email, element.github)
                     team.push(engineer)
-                } else if (element.role === 'Intern'){
+                } else if (element.role === 'Intern') {
                     const intern = new Intern(element.name, element.id, element.email, element.school)
                     team.push(intern)
                 }
-                
             });
-                console.log(team)
-                writeFileAsync(outputPath, render(team))
-
-
+            writeFileAsync(outputPath, render(team))
         })
-        // .then((val) => {
-        //     if (val.licence == 'Add Engineer') {
-        //         addEngineer()
-        //             // .then(() => writeFileAsync(outputPath, render(team)))
-        //             .then(() => console.log(team))
-
-        //     } else if (val.licence == 'Add Interin') {
-        //         addIntern()
-        //             // .then(() => writeFileAsync(outputPath, render(team)))
-        //             .then(() => console.log(team))
-        //     } else {
-        //         console.log(team)
-        //         // console.log(team[manager.name])
-        //         // writeFileAsync(outputPath, render(manager))
-        //         // process.exit(0)
-        //         // console.log(val)
-
-        //     }
-        // })
-
     )
-    // .then(() => addEngineer())
-    // .then(() => addIntern())
-    // .then(() => console.log(team))
-    // .then(() => writeFileAsync(outputPath, render(team)))
 
